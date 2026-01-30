@@ -14,7 +14,12 @@ public class Portfolio<T> {
 
     public void deleteAsset(T key , int quantity) {
            int curentQuantity = outcome.getOrDefault(key , 0);
-           if(curentQuantity <= quantity){
+
+        if (curentQuantity < quantity) {
+            throw new IllegalArgumentException("Quantité insuffisante dans le portefeuille");
+        }
+
+           if(curentQuantity == quantity){
                outcome.remove(key);
            }else{
                outcome.put(key , curentQuantity - quantity);
@@ -27,7 +32,7 @@ public class Portfolio<T> {
     }
 
     public Map<T, Integer> getOutcome() {
-        return outcome;
+        return new HashMap<>(outcome);
     }
 
 }

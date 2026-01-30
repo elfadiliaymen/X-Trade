@@ -1,9 +1,9 @@
 package org.example;
 
-public class Trader extends  Person{
+public class Trader extends Person{
 
     private double balance;
-    private Portfolio<String> portfolio;
+    private Portfolio<String> portfolio = new Portfolio<>();
 
     public Trader(String id , String name , double balance){
 

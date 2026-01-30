@@ -9,19 +9,22 @@ public class Main {
 
         boolean running = true;
 
+
         while (running) {
-            System.out.println("\n=== XTrade Simulator ===");
-            System.out.println("1. Ajouter un actif");
-            System.out.println("2. Afficher les actifs");
-            System.out.println("3. Ajouter un trader");
-            System.out.println("4. Consulter portefeuille");
-            System.out.println("5. Acheter un actif");
-            System.out.println("6. Vendre un actif");
-            System.out.println("7. Historique des transactions");
-            System.out.println("0. Quitter");
-            System.out.print("Votre choix : ");
+            System.out.println("============XTrade Simulator===========");
+            System.out.println("[1]-Ajouter un actif");
+            System.out.println("[2]-Afficher les actifs");
+            System.out.println("[3]-Ajouter un trader");
+            System.out.println("[4]-Consulter portefeuille");
+            System.out.println("[5]-Acheter un actif");
+            System.out.println("[6]-Vendre un actif");
+            System.out.println("[7]-Historique des transactions");
+            System.out.println("[8]-Mettre à jour les prix du marché");
+            System.out.println("[0]-Quitter");
+            System.out.println("Votre choix : ");
 
             int choice = sc.nextInt();
+            sc.nextLine();
 
             switch (choice) {
                 case 1:
@@ -31,7 +34,7 @@ public class Main {
                     System.out.print("Nom de l'actif : ");
                     String name = sc.next();
 
-                    System.out.print("Prix : ");
+                    System.out.print("Prix ($): ");
                     double price = sc.nextDouble();
 
                     System.out.print("Type (1 = Stock, 2 = Crypto) : ");
@@ -39,14 +42,16 @@ public class Main {
 
                     try {
                         if (type == 1) {
-                            platform.addAsset(new Stock(code, name, price));
+                                platform.addAsset(new Stock(code, name, price));
+
                         } else if (type == 2) {
                             platform.addAsset(new CryptoCurency(code, name, price));
                         } else {
                             System.out.println("Type invalide");
                         }
+                        System.out.println("Actif ajouté!");
                     } catch (Exception e) {
-                        System.out.println("Erreur : " + e.getMessage());
+                        System.out.println("Erreur: " + e.getMessage());
                     }
                     break;
                case 2:
@@ -60,15 +65,20 @@ public class Main {
                     System.out.print("Nom Trader : ");
                     String traderName = sc.next();
 
-                    System.out.print("Solde initial : ");
+                    System.out.print("Solde initial ($): ");
                     double balance = sc.nextDouble();
 
+                    if (balance < 0) {
+                        System.out.println("Solde ne peut pas être négatif");
+                        return;
+                    }
+                    sc.nextLine();
                     try {
                         Trader trader = new Trader(traderId, traderName, balance);
                         platform.addTrader(trader);
-                        System.out.println("Trader ajouté avec succès.");
+                        System.out.println("Trader ajouté avec succès");
                     } catch (Exception e) {
-                        System.out.println("Erreur : " + e.getMessage());
+                        System.out.println("Erreur: " + e.getMessage());
                     }
                     break;
                 case 4:
@@ -87,11 +97,17 @@ public class Main {
                     System.out.print("Quantité : ");
                     int buyQty = sc.nextInt();
 
+                    if (buyQty <= 0) {
+                        System.out.println("Quantité doit être positive");
+                        return;
+                    }
+                    sc.nextLine();
+
                     try {
                         platform.wantsTobuy(buyTraderId, buyAssetCode, buyQty);
-                        System.out.println("Achat effectué.");
+                        System.out.println("Achat effectué");
                     } catch (Exception e) {
-                        System.out.println("Erreur : " + e.getMessage());
+                        System.out.println("Erreur: " + e.getMessage());
                     }
                     break;
                 case 6:
@@ -103,17 +119,26 @@ public class Main {
 
                     System.out.print("Quantité : ");
                     int sellQty = sc.nextInt();
+                    if (sellQty <= 0) {
+                        System.out.println("Quantité doit être positive");
+                        return;
+                    }
+                    sc.nextLine();
 
                     try {
                         platform.wantsToSell(sellTraderId, sellAssetCode, sellQty);
-                        System.out.println("Vente effectuée.");
+                        System.out.println("Vente effectuée");
                     } catch (Exception e) {
-                        System.out.println("Erreur : " + e.getMessage());
+                        System.out.println("Erreur: " + e.getMessage());
                     }
                     break;
 
                 case 7:
                     platform.showTransactions();
+                    break;
+
+                case 8 :
+                    platform.updateAssetPricesRandomly();
                     break;
 
                 case 0:
@@ -126,4 +151,5 @@ public class Main {
         }
         sc.close();
     }
+
 }
