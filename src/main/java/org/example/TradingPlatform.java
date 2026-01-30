@@ -3,6 +3,7 @@ package org.example;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class TradingPlatform {
     private String name;
@@ -53,9 +54,18 @@ public class TradingPlatform {
     }
 
     public void showAssets(){
+
+        if (assets.isEmpty()) {
+            System.out.println("Aucun actif");
+            return;
+        }
+        System.out.println("============Actifs Disponibles=========");
+
+
         for (Asset ast : assets){
-            System.out.println("Type :" + ast.getType());
-            System.out.println("Code :"+ ast.getCode() + " | Name : " + ast.getName() + " | Price : " + ast.getPrice() );
+            System.out.println("-----------------------------------------------------------------");
+            System.out.println("Code :"+ ast.getCode() + " | Name : " + ast.getName() + " | Price : " + ast.getPrice() + "  |  Type :" + ast.getType());
+            System.out.println("-----------------------------------------------------------------");
         }
     }
 
@@ -70,6 +80,9 @@ public void wantsTobuy( String traderid , String assetcode , int quantity ){
                 trader = t;
             }
         }
+    if (trader == null){
+        throw new IllegalArgumentException("Trader non trouvé");
+    }
 
         Asset asset = null;
         for (Asset a : assets){
@@ -77,11 +90,18 @@ public void wantsTobuy( String traderid , String assetcode , int quantity ){
               asset = a ;
             }
         }
-    if(trader.getBalance() > asset.getPrice() * quantity ){
+
+    if (asset == null) throw new IllegalArgumentException("Actif non trouvé");
+    if (quantity <= 0) throw new IllegalArgumentException("Quantité invalide");
+
+    if (trader.getBalance() <  asset.getPrice() * quantity) {
+        throw new IllegalArgumentException("Solde insuffisant ");
+    }
+
         trader.buyAsset(asset , quantity);
         trader.setBalance(trader.getBalance() - asset.getPrice() * quantity);
         transactions.add(new Transaction("BUY" , assetcode, quantity , asset.getPrice() , LocalDateTime.now()));
-    }else System.out.println("balance not allowed");
+
 };
 
     public void wantsToSell( String traderid , String assetcode , int quantity ){
@@ -92,6 +112,10 @@ public void wantsTobuy( String traderid , String assetcode , int quantity ){
             }
         }
 
+        if (trader == null){
+            throw new IllegalArgumentException("Trader non trouvé");
+        }
+
         Asset asset = null;
         for (Asset a : assets){
             if(a.getCode().equals(assetcode)){
@@ -99,13 +123,21 @@ public void wantsTobuy( String traderid , String assetcode , int quantity ){
             }
         }
 
-        if (trader == null || asset == null) {
-            System.out.println("Trader or asset not found");
-            return;
+        if (asset == null){
+            throw new IllegalArgumentException("Actif non trouvé");
         }
-            transactions.add(new Transaction("SELL"  ,assetcode, quantity , asset.getPrice() , LocalDateTime.now()));
+
+        if (quantity <= 0){
+            throw new IllegalArgumentException("Quantité invalide");
+        }
+        if (trader.getPortfolio().getQuantity(assetcode) < quantity) {
+            throw new IllegalArgumentException("Quantité insuffisante dans portefeuille");
+        }
+
+
             trader.sellAsset(asset , quantity);
             trader.setBalance(trader.getBalance() + asset.getPrice() * quantity);
+        transactions.add(new Transaction("SELL"  ,assetcode, quantity , asset.getPrice() , LocalDateTime.now()));
 
 
     };
@@ -119,20 +151,85 @@ public void wantsTobuy( String traderid , String assetcode , int quantity ){
         }
 
         if(traderFound != null){
-            System.out.println("name : " + traderFound.getId() + "| balance :" +
-                    traderFound.getBalance() + "| portfolio : " + traderFound.getPortfolio().getOutcome());
+            System.out.println("-----------------------------------------------------------------");
+            System.out.printf("-----------Portefeuille de" + traderFound.getName() + "-----------");
+            System.out.println("-----------------------------------------------------------------");
+            double totalValue = 0;
+
+            for (var entry : traderFound.getPortfolio().getOutcome().entrySet()) {
+                String code = entry.getKey();
+                int qty = entry.getValue();
+                Asset asseF = null;
+                for (Asset ast : assets) {
+                    if(ast.getCode().equals(code)){
+                        asseF = ast ;
+                }
+                if (asseF != null) {
+                    double value = qty * asseF.getPrice();
+                    totalValue += value;
+                    System.out.printf("Code : " + code + "  | Asset : " + asseF.getName()+ "  | Quantity  : " + qty + "  |  Price  : " +  asseF.getPrice() +  " |  total price : " + value);
+                }
+            }
+                System.out.println("\n-----------------------------------------------------------------");
+            System.out.printf("Valeur totale portefeuille : " +  totalValue);
+        }
         }else {
-            System.out.println("trader not found");
+            System.out.println("Trader non trouvé");
         }
 
     }
 
     public void showTransactions(){
+        if (transactions.isEmpty()) {
+            System.out.println("Aucune transaction");
+            return;
+        }
 
+        System.out.println("-----------------------------------------------------------------");
+        System.out.println("---------------| Historique des Transactions |-------------------");
+        System.out.println("-----------------------------------------------------------------");
         for(Transaction tran : transactions){
             System.out.println(" type : "+tran.getType() + "| asset Code : " + tran.getAssetCode() + " | asset Price : " + tran.getPrice() + " | Quantity : " + tran.getQuantity() + "| Date :" + tran.getDate() );
         }
+        System.out.println("-----------------------------------------------------------------");
 
     }
 
+
+
+    public void updateAssetPricesRandomly() {
+
+        if (assets.isEmpty()) {
+            System.out.println("Aucun actif à mettre à jour");
+            return;
+        }
+
+        Random random = new Random();
+
+        System.out.println(" Mise à jour des prix...");
+
+        for (Asset asset : assets) {
+            double oldPrice = asset.getPrice();
+            boolean UpOrDown = random.nextBoolean();
+            double variation;
+            if (UpOrDown) {
+                variation = 0.05;
+            } else {
+                variation = -0.05;
+            }
+
+            double newPrice = oldPrice + (oldPrice * variation);
+
+            if (newPrice < 1) {
+                newPrice = 1;
+            }
+            asset.setPrice(newPrice);
+            System.out.println(
+                    asset.getName() + " (" + asset.getCode() + ") : "
+                            + oldPrice + " $ → " + newPrice + " $"
+            );
+        }
+
+        System.out.println("Prix mis à jour\n");
+    }
 }
