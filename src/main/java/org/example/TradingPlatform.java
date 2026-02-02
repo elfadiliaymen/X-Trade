@@ -59,11 +59,10 @@ public class TradingPlatform {
             System.out.println("Aucun actif");
             return;
         }
-        System.out.println("============Actifs Disponibles=========");
+        System.out.println("============< Actifs Disponibles >=========");
 
 
         for (Asset ast : assets){
-            System.out.println("-----------------------------------------------------------------");
             System.out.println("Code :"+ ast.getCode() + " | Name : " + ast.getName() + " | Price : " + ast.getPrice() + "  |  Type :" + ast.getType());
             System.out.println("-----------------------------------------------------------------");
         }
@@ -73,23 +72,34 @@ public class TradingPlatform {
         traders.add(newTrader);
     }
 
-public void wantsTobuy( String traderid , String assetcode , int quantity ){
+    public Trader findTrader(String traderid){
         Trader trader = null;
         for(Trader t : traders){
             if(t.getId().equals(traderid)){
                 trader = t;
             }
         }
+        return trader;
+    }
+
+    public Asset findAsset(String assetcode){
+        Asset asset = null;
+        for (Asset a : assets){
+            if(a.getCode().equals(assetcode)){
+                asset = a ;
+            }
+        }
+        return asset;
+    }
+
+public void wantsTobuy( String traderid , String assetcode , int quantity ){
+        Trader trader = findTrader(traderid);
+
     if (trader == null){
         throw new IllegalArgumentException("Trader non trouvé");
     }
 
-        Asset asset = null;
-        for (Asset a : assets){
-            if(a.getCode().equals(assetcode)){
-              asset = a ;
-            }
-        }
+        Asset asset = findAsset(assetcode);
 
     if (asset == null) throw new IllegalArgumentException("Actif non trouvé");
     if (quantity <= 0) throw new IllegalArgumentException("Quantité invalide");
@@ -105,23 +115,13 @@ public void wantsTobuy( String traderid , String assetcode , int quantity ){
 };
 
     public void wantsToSell( String traderid , String assetcode , int quantity ){
-        Trader trader = null;
-        for(Trader t : traders){
-            if(t.getId().equals(traderid)){
-                trader = t;
-            }
-        }
+        Trader trader = findTrader(traderid);
 
         if (trader == null){
             throw new IllegalArgumentException("Trader non trouvé");
         }
 
-        Asset asset = null;
-        for (Asset a : assets){
-            if(a.getCode().equals(assetcode)){
-                asset = a ;
-            }
-        }
+        Asset asset = findAsset(assetcode);
 
         if (asset == null){
             throw new IllegalArgumentException("Actif non trouvé");
@@ -143,40 +143,50 @@ public void wantsTobuy( String traderid , String assetcode , int quantity ){
     };
 
     public void showPortfolio(String traderID){
-        Trader traderFound = null;
-        for(Trader t : traders){
-            if(t.getId().equals(traderID)){
-                traderFound = t;
-            }
+        Trader traderFound = findTrader(traderID);
+
+        if (traderFound == null) {
+            System.out.println("Trader non trouvé");
+            return;
         }
 
         if(traderFound != null){
-            System.out.println("-----------------------------------------------------------------");
-            System.out.printf("-----------Portefeuille de" + traderFound.getName() + "-----------");
-            System.out.println("-----------------------------------------------------------------");
+            System.out.printf("-----< Portefeuille de : " + traderFound.getName() + " >----- \n");
+
+            if (traderFound.getPortfolio().getOutcome().isEmpty()) {
+                System.out.println("Portefeuille vide.");
+                System.out.println("Valeur totale portefeuille : 0.0 $");
+                System.out.println("-----------------------------------------------------------------");
+                return;
+            }
+
+
             double totalValue = 0;
 
             for (var entry : traderFound.getPortfolio().getOutcome().entrySet()) {
                 String code = entry.getKey();
                 int qty = entry.getValue();
-                Asset asseF = null;
-                for (Asset ast : assets) {
-                    if(ast.getCode().equals(code)){
-                        asseF = ast ;
-                }
-                if (asseF != null) {
-                    double value = qty * asseF.getPrice();
+
+                Asset asset = findAsset(code);
+                if (asset != null) {
+                    double value = qty * asset.getPrice();
                     totalValue += value;
-                    System.out.printf("Code : " + code + "  | Asset : " + asseF.getName()+ "  | Quantity  : " + qty + "  |  Price  : " +  asseF.getPrice() +  " |  total price : " + value);
+
+                    System.out.println(
+                            "Code : " + code +
+                                    " | Actif : " + asset.getName() +
+                                    " | Quantité : " + qty +
+                                    " | Prix : " + asset.getPrice() + " $" +
+                                    " | Valeur : " + value + " $"
+                    );
                 }
             }
-                System.out.println("\n-----------------------------------------------------------------");
-            System.out.printf("Valeur totale portefeuille : " +  totalValue);
-        }
-        }else {
-            System.out.println("Trader non trouvé");
-        }
 
+            System.out.println("-----------------------------------------------------------------");
+            System.out.println("Valeur totale portefeuille : " + totalValue + " $");
+            System.out.println("-----------------------------------------------------------------");
+
+    }
     }
 
     public void showTransactions(){
@@ -187,16 +197,12 @@ public void wantsTobuy( String traderid , String assetcode , int quantity ){
 
         System.out.println("-----------------------------------------------------------------");
         System.out.println("---------------| Historique des Transactions |-------------------");
-        System.out.println("-----------------------------------------------------------------");
         for(Transaction tran : transactions){
             System.out.println(" type : "+tran.getType() + "| asset Code : " + tran.getAssetCode() + " | asset Price : " + tran.getPrice() + " | Quantity : " + tran.getQuantity() + "| Date :" + tran.getDate() );
         }
         System.out.println("-----------------------------------------------------------------");
 
     }
-
-
-
     public void updateAssetPricesRandomly() {
 
         if (assets.isEmpty()) {
@@ -231,5 +237,42 @@ public void wantsTobuy( String traderid , String assetcode , int quantity ){
         }
 
         System.out.println("Prix mis à jour\n");
+    }
+
+
+    public void calculateGainsAndLosses(String traderId){
+        Trader trader = findTrader(traderId);
+        if (trader == null) {
+            System.out.println("Trader non trouvé");
+            return;
+        }
+
+        double totalInvested = 0;
+        double currentValue = 0;
+
+        for(Transaction t : transactions){
+         if(t.getType().equals("BUY")){
+             totalInvested += t.getPrice() * t.getQuantity();
+         }
+        }
+
+        for(var entry : trader.getPortfolio().getOutcome().entrySet()){
+             String assetCode = entry.getKey();
+             int quantity = entry.getValue();
+
+             Asset asset = findAsset(assetCode);
+
+             if(asset != null){
+                currentValue += asset.getPrice() * quantity;
+             }
+        }
+
+        double gainOrLoss = currentValue - totalInvested;
+
+        System.out.println("---- Gains et Pertes ----");
+        System.out.println("Montant investi : " + totalInvested + "$");
+        System.out.println("Valeur actuelle du portefeuille : " + currentValue + "$");
+        System.out.println("Gain / Perte : " + gainOrLoss + "$");
+
     }
 }
