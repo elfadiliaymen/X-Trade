@@ -20,6 +20,7 @@ public class Main {
             System.out.println("[6]-Vendre un actif");
             System.out.println("[7]-Historique des transactions");
             System.out.println("[8]-Mettre à jour les prix du marché");
+            System.out.println("[9]-Calcul des gains et pertes");
             System.out.println("[0]-Quitter");
             System.out.println("Votre choix : ");
 
@@ -139,6 +140,12 @@ public class Main {
 
                 case 8 :
                     platform.updateAssetPricesRandomly();
+                    break;
+
+                case 9 :
+                    System.out.print("ID Trader : ");
+                    String IDdeTrader = sc.next();
+                    platform.calculateGainsAndLosses(IDdeTrader);
                     break;
 
                 case 0:
