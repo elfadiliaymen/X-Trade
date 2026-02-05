@@ -1,5 +1,6 @@
 package org.example;
 
+import java.time.LocalDateTime;
 import java.util.Scanner;
 
 public class Main {
@@ -146,6 +147,87 @@ public class Main {
                     System.out.print("ID Trader : ");
                     String IDdeTrader = sc.next();
                     platform.calculateGainsAndLosses(IDdeTrader);
+                    break;
+
+                case 10 :
+                    System.out.print("ID Trader : ");
+                    String id = sc.next();
+                    platform.getTransactionOfTrader(id);
+                     break;
+
+                case 11:
+
+                    System.out.print("ID Trader  : ");
+                    String tid = sc.nextLine();
+
+                    System.out.print("Type (BUY / SELL): ");
+                    String typeOP = sc.nextLine();
+
+                    System.out.print("Code Actif (ex: AAPL, BTC)  : ");
+                    String assetCd = sc.nextLine();
+
+                    System.out.print("Date début (yyyy-MM-dd HH:mm): ");
+                    String startInput = sc.nextLine();
+                    LocalDateTime startDate = LocalDateTime.parse(startInput.replace(" ", "T"));
+
+                    System.out.print("Date fin (yyyy-MM-dd HH:mm)  : ");
+                    String endInput = sc.nextLine();
+                    LocalDateTime endDate =  LocalDateTime.parse(endInput.replace(" ", "T"));
+
+                    platform.filterTransactions(
+                            tid,
+                            typeOP,
+                            assetCd,
+                            startDate,
+                            endDate
+                    );
+                    break;
+
+
+                case 12:
+                    platform.sortBydate();
+                    break;
+
+                case 13:
+                    platform.sortByMontant();
+                    break;
+
+                case 14:
+                    platform.getTotalVolumeTraded();
+                    break;
+
+                case 15:
+                    platform.getTotalAmountTradedByBuy();
+                    break;
+
+                case 16:
+                    platform.getTotalAmountTradedBySell();
+                    break;
+
+                case 17:
+                    platform.getTotalVolumeByTrader();
+                    break;
+
+                case 18:
+                    platform.getTotalOrders();
+                    break;
+
+                case 19:
+                    System.out.print("Combien de traders afficher ? ");
+                    int topN = sc.nextInt();
+                    platform.getTopTradersByVolume(topN);
+                    break;
+
+                case 20:
+                    platform.getTotalVolumeByInstrument();
+                    break;
+
+                case 21:
+                    platform.getMostTradedInstrument();
+                    break;
+
+                case 22:
+                    platform.getTotalBuyAndSellAmounts();
                     break;
 
                 case 0:
