@@ -6,6 +6,7 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         TradingPlatform platform = new TradingPlatform("XTrade");
+        platform.basicData();
         Scanner sc = new Scanner(System.in);
 
         boolean running = true;
@@ -22,6 +23,22 @@ public class Main {
             System.out.println("[7]-Historique des transactions");
             System.out.println("[8]-Mettre à jour les prix du marché");
             System.out.println("[9]-Calcul des gains et pertes");
+
+            System.out.println("----------- ANALYSE STREAM -----------");
+            System.out.println("[10] Transactions d’un trader");
+            System.out.println("[11] Filtrer transactions (trader / type / actif / dates)");
+            System.out.println("[12] Trier transactions par date");
+            System.out.println("[13] Trier transactions par montant");
+            System.out.println("[14] Volume total échangé par actif");
+            System.out.println("[15] Montant total des BUY par actif");
+            System.out.println("[16] Montant total des SELL par actif");
+            System.out.println("[17] Volume total par trader");
+            System.out.println("[18] Nombre total d’ordres");
+            System.out.println("[19] Top N traders par volume");
+            System.out.println("[20] Volume total par instrument");
+            System.out.println("[21] Instrument le plus échangé");
+            System.out.println("[22] Montant total BUY et SELL");
+
             System.out.println("[0]-Quitter");
             System.out.println("Votre choix : ");
 
@@ -163,9 +180,9 @@ public class Main {
                     System.out.print("Type (BUY / SELL): ");
                     String typeOP = sc.nextLine();
 
-                    System.out.print("Code Actif (ex: AAPL, BTC)  : ");
+                    System.out.print("Code Actif : ");
                     String assetCd = sc.nextLine();
-
+                    sc.nextLine();
                     System.out.print("Date début (yyyy-MM-dd HH:mm): ");
                     String startInput = sc.nextLine();
                     LocalDateTime startDate = LocalDateTime.parse(startInput.replace(" ", "T"));
