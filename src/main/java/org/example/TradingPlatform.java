@@ -50,6 +50,40 @@ public class TradingPlatform {
         this.traders = traders;
     }
 
+    public void basicData() {
+
+
+        Asset aapl = new Stock("AAPL", "Apple", 150);
+        Asset btc  = new CryptoCurency("BTC", "Bitcoin", 30000);
+        Asset eth  = new CryptoCurency("ETH", "Ethereum", 2000);
+
+        assets.addAll(List.of(aapl, btc, eth));
+
+        Trader t1 = new Trader("T1", "Alice", 100000);
+        Trader t2 = new Trader("T2", "Bob", 80000);
+        Trader t3 = new Trader("T3", "Charlie", 50000);
+
+        traders.addAll(List.of(t1, t2, t3));
+
+
+        transactions.add(new Transaction("T1", "BUY", "AAPL", 50, 150, LocalDateTime.now().minusDays(3)));
+        transactions.add(new Transaction("T1", "BUY", "BTC", 1, 30000, LocalDateTime.now().minusDays(2)));
+        transactions.add(new Transaction("T2", "BUY", "AAPL", 30, 150, LocalDateTime.now().minusDays(2)));
+        transactions.add(new Transaction("T2", "BUY", "ETH", 10, 2000, LocalDateTime.now().minusDays(1)));
+        transactions.add(new Transaction("T3", "BUY", "ETH", 5, 2000, LocalDateTime.now().minusHours(10)));
+
+        transactions.add(new Transaction("T1", "SELL", "AAPL", 10, 155, LocalDateTime.now().minusHours(5)));
+        transactions.add(new Transaction("T2", "SELL", "ETH", 3, 2100, LocalDateTime.now().minusHours(2)));
+
+        t1.buyAsset(aapl, 40);
+        t1.buyAsset(btc, 1);
+
+        t2.buyAsset(aapl, 30);
+        t2.buyAsset(eth, 7);
+
+        t3.buyAsset(eth, 5);
+    }
+
 
     public void addAsset(Asset newAsset){
         assets.add(newAsset);
